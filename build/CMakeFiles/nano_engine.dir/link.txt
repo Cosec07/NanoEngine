@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/nano_engine.dir/src/main.cpp.o CMakeFiles/nano_engine.dir/src/tensor.cpp.o CMakeFiles/nano_engine.dir/src/ops.cpp.o CMakeFiles/nano_engine.dir/src/loader.cpp.o CMakeFiles/nano_engine.dir/src/model.cpp.o CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o CMakeFiles/nano_engine.dir/src/safetensors.cpp.o -o nano_engine 

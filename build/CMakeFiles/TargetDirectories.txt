@@ -1,0 +1,3 @@
+/data/kaushik/NanoEngine/build/CMakeFiles/nano_engine.dir
+/data/kaushik/NanoEngine/build/CMakeFiles/edit_cache.dir
+/data/kaushik/NanoEngine/build/CMakeFiles/rebuild_cache.dir
