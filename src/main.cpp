@@ -1,41 +1,57 @@
-#include "tensor.hpp"
+#include "model.hpp"
+#include "safetensors.hpp"
+#include "tokenizer.hpp"
 #include "ops.hpp"
 #include <iostream>
-#include "loader.hpp"
-#include "model.hpp"
-#include "tokenizer.hpp"
-#include "safetensors.hpp"
+#include <vector>
 
 int main() {
     try {
-        std::cout<<"Starting NanoEngine Phase 2 Verification......"<<std::endl;
+        std::cout << "=== Nano-Engine Live ===" << std::endl;
 
+        // 1. Setup
         Tokenizer tokenizer;
         tokenizer.load_json("vocab.json");
 
-        Config config;
+        Config config; 
+        config.max_seq_len = 1024; // Context window size
         Transformer model(config);
 
         SafeTensorsLoader loader("model.safetensors");
         model.load_weights(loader);
 
-        int test_token_id = 310;
-        std::string word = tokenizer.decode(test_token_id);
+        std::cout << "\n----------------------------------------\n";
 
-        std::cout<<"\nTarget Token ID: "<<test_token_id <<"-> Word: ["<< word <<"]"<<std::endl;
+        int next_token = 400; 
+        
+        std::cout << tokenizer.decode(next_token) << std::flush;
 
-        Tensor hidden_state({(size_t)config.dim});
+        int max_tokens_to_generate = 10; 
+        
+        for (int pos = 0; pos < max_tokens_to_generate; ++pos) {
+            
 
-        std::cout << "Extracting embedding vector"<<std::endl;
-        ops::get_embedding(model.token_embedding_table, test_token_id, hidden_state);
+            Tensor logits = model.forward(next_token, pos, config);
 
-        std::cout<<"\n Success! First 5 values of the embedding vector: ["<< word << "]"<<std::endl;
-        for(int i=0;i<5;++i) {
-            std::cout<<"Dim["<<i<<"]"<<hidden_state[i]<<std::endl;
+ 
+            next_token = ops::argmax(logits);
+
+
+            std::string word = tokenizer.decode(next_token);
+
+            std::cout << word << std::flush;
+
+            if (next_token == 151645 || next_token == 151643) {
+                break;
+            }
         }
-    }catch(const std::exception& e) {
-        std::cerr<<"Fatal Error: "<<e.what()<<std::endl;
+        
+        std::cout << "\n\n[Generation Complete]" << std::endl;
+
+    } catch (const std::exception& e) {
+        std::cerr << "\nFatal Error: " << e.what() << std::endl;
         return 1;
     }
+
     return 0;
 }

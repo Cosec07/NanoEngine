@@ -32,6 +32,11 @@ struct TransformerLayer {
     Tensor w_gate;
     Tensor w_up;
     Tensor w_down;
+
+    Tensor key_cache;
+    Tensor value_cache;
+
+    void forward(Tensor& hidden_state, int pos, const Config& config);
 };
 
 struct Transformer{
@@ -48,5 +53,7 @@ struct Transformer{
     Transformer(Config cfg);
 
     void load_weights(const SafeTensorsLoader& loader);
+
+    Tensor forward(int token_id, int pos, Config& config);
 };
 #endif

@@ -96,4 +96,60 @@ namespace ops {
 
         std::memcpy(out.data.data(), embedding_table.data.data() + offset, dim * sizeof(float));
     }
+
+    void matvec(const Tensor& m, const Tensor& v, Tensor& out) {
+        size_t rows = m.shape[0];
+        size_t cols = m.shape[1];
+
+        assert(v.shape.size() == 1 || (v.shape.size() == 2 && v.shape[0] == 1));
+        assert(v.size() == cols);
+        assert(out.size() == rows);
+
+        for (size_t i=0; i<rows; ++i) {
+            out[i] = dot(m.data.data() + (i * cols), v.data.data(), cols);
+        }
+    }
+
+    void apply_rope(Tensor& t, int pos, int head_dim, float rope_theta) {
+        size_t n_heads = t.size() / head_dim;
+
+        for(size_t h=0; h<n_heads; ++h) {
+            for (size_t i=0; i<head_dim; i+=2) {
+                float freq = 1.0f / std::pow(rope_theta, static_cast<float>(i) / head_dim);
+
+                float val = static_cast<float>(pos) * freq;
+                float fcr = std::cos(val);
+                float fci = std::sin(val);
+
+                size_t idx0 = h * head_dim + i;
+                size_t idx1 = h * head_dim + i + 1;
+
+                float v0 = t[idx0];
+                float v1 = t[idx1];
+
+                t[idx0] = v0 * fcr - v1 * fci;
+                t[idx1] = v0 * fci - v1 * fcr;
+            }
+        }
+
+    }
+
+    void silu(Tensor& t) {
+        for(size_t i=0; i< t.size(); ++i) {
+            float x = t[i];
+            t[i] = x / (1.0f + std::exp(-x));
+        }
+    }
+
+    int argmax(const Tensor& logits) {
+        int max_index = 0;
+        float max_value = logits[0];
+        for(size_t i=1; i<logits.size();++i){
+            if(logits[i] > max_value) {
+                max_value = logits[i];
+                max_index = i;
+            }
+        }
+        return max_index;
+    }
 }

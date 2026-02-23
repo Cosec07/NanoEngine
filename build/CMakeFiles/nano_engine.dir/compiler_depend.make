@@ -210,6 +210,7 @@ CMakeFiles/nano_engine.dir/src/loader.cpp.o: ../src/loader.cpp \
 
 CMakeFiles/nano_engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/stdc-predef.h \
+  ../include/model.hpp \
   ../include/tensor.hpp \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_algobase.h \
@@ -408,10 +409,6 @@ CMakeFiles/nano_engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/istream \
   /usr/include/c++/11/bits/istream.tcc \
-  ../include/ops.hpp \
-  ../include/tensor.hpp \
-  ../include/loader.hpp \
-  ../include/model.hpp \
   ../include/safetensors.hpp \
   /usr/include/c++/11/map \
   /usr/include/c++/11/bits/stl_tree.h \
@@ -428,8 +425,9 @@ CMakeFiles/nano_engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/erase_if.h \
   /usr/include/c++/11/optional \
   /usr/include/c++/11/bits/enable_special_members.h \
+  ../include/safetensors.hpp \
   ../include/tokenizer.hpp \
-  ../include/safetensors.hpp
+  ../include/ops.hpp
 
 CMakeFiles/nano_engine.dir/src/model.cpp.o: ../src/model.cpp \
   /usr/include/stdc-predef.h \
@@ -647,7 +645,36 @@ CMakeFiles/nano_engine.dir/src/model.cpp.o: ../src/model.cpp \
   /usr/include/c++/11/bits/stl_multimap.h \
   /usr/include/c++/11/bits/erase_if.h \
   /usr/include/c++/11/optional \
-  /usr/include/c++/11/bits/enable_special_members.h
+  /usr/include/c++/11/bits/enable_special_members.h \
+  ../include/ops.hpp \
+  /usr/include/c++/11/cmath \
+  /usr/include/math.h \
+  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
+  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
+  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
+  /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
+  /usr/include/c++/11/bits/specfun.h \
+  /usr/include/c++/11/limits \
+  /usr/include/c++/11/tr1/gamma.tcc \
+  /usr/include/c++/11/tr1/special_function_util.h \
+  /usr/include/c++/11/tr1/bessel_function.tcc \
+  /usr/include/c++/11/tr1/beta_function.tcc \
+  /usr/include/c++/11/tr1/ell_integral.tcc \
+  /usr/include/c++/11/tr1/exp_integral.tcc \
+  /usr/include/c++/11/tr1/hypergeometric.tcc \
+  /usr/include/c++/11/tr1/legendre_function.tcc \
+  /usr/include/c++/11/tr1/modified_bessel_func.tcc \
+  /usr/include/c++/11/tr1/poly_hermite.tcc \
+  /usr/include/c++/11/tr1/poly_laguerre.tcc \
+  /usr/include/c++/11/tr1/riemann_zeta.tcc \
+  /usr/include/c++/11/cstring \
+  /usr/include/string.h \
+  /usr/include/strings.h
 
 CMakeFiles/nano_engine.dir/src/ops.cpp.o: ../src/ops.cpp \
   /usr/include/stdc-predef.h \
@@ -1915,31 +1942,29 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 ../third_party/json.hpp:
 
-/usr/include/strings.h:
+/usr/include/c++/11/bit:
 
-/usr/include/c++/11/tr1/riemann_zeta.tcc:
+/usr/include/c++/11/bits/stl_numeric.h:
 
-/usr/include/c++/11/bits/std_mutex.h:
+/usr/include/c++/11/numeric:
 
-/usr/include/c++/11/tr1/poly_laguerre.tcc:
+/usr/include/c++/11/bits/unordered_map.h:
 
-/usr/include/c++/11/tr1/poly_hermite.tcc:
+/usr/include/c++/11/bits/hashtable_policy.h:
 
-/usr/include/c++/11/tr1/modified_bessel_func.tcc:
+/usr/include/c++/11/bits/hashtable.h:
 
-/usr/include/c++/11/tr1/hypergeometric.tcc:
+/usr/include/c++/11/unordered_map:
 
-/usr/include/c++/11/tr1/exp_integral.tcc:
+/usr/include/c++/11/bits/refwrap.h:
 
-/usr/include/c++/11/tr1/ell_integral.tcc:
+/usr/include/c++/11/bits/ranges_util.h:
 
-/usr/include/c++/11/tr1/bessel_function.tcc:
+/usr/include/c++/11/bits/stream_iterator.h:
 
-/usr/include/c++/11/tr1/special_function_util.h:
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
-/usr/include/c++/11/bits/specfun.h:
-
-/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
+/usr/include/c++/11/bits/ranges_algobase.h:
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
 
@@ -2001,7 +2026,7 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
 
-/usr/include/c++/11/numeric:
+/usr/include/strings.h:
 
 /usr/include/c++/11/bits/ranges_uninitialized.h:
 
@@ -2010,6 +2035,10 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/c++/11/ext/new_allocator.h:
 
 ../src/model.cpp:
+
+/usr/include/c++/11/pstl/execution_defs.h:
+
+/usr/include/c++/11/bits/algorithmfwd.h:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
 
@@ -2020,6 +2049,8 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/c++/11/system_error:
 
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
+
+/usr/include/c++/11/tr1/modified_bessel_func.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/endian.h:
 
@@ -2073,7 +2104,9 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/bits/stl_iterator_base_types.h:
 
-/usr/include/c++/11/bit:
+/usr/include/c++/11/bits/std_mutex.h:
+
+/usr/include/c++/11/tr1/poly_laguerre.tcc:
 
 /usr/include/stdc-predef.h:
 
@@ -2089,23 +2122,23 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/bits/stl_construct.h:
 
+/usr/include/c++/11/tr1/exp_integral.tcc:
+
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
 /usr/include/c++/11/bits/vector.tcc:
 
 /usr/include/c++/11/optional:
 
-/usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
-
-/usr/include/c++/11/bits/postypes.h:
-
 /usr/include/c++/11/cstdint:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
-/usr/include/c++/11/bits/stl_tempbuf.h:
+/usr/include/c++/11/tr1/special_function_util.h:
 
 /usr/include/c++/11/bits/std_function.h:
+
+/usr/include/c++/11/bits/stl_tempbuf.h:
 
 ../src/loader.cpp:
 
@@ -2167,11 +2200,13 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 ../src/ops.cpp:
 
-/usr/include/c++/11/tr1/gamma.tcc:
-
-/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
-
 /usr/include/c++/11/ostream:
+
+/usr/include/c++/11/bits/ranges_algo.h:
+
+/usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
+
+/usr/include/c++/11/bits/stl_iterator.h:
 
 /usr/include/c++/11/bits/sstream.tcc:
 
@@ -2184,10 +2219,6 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/c++/11/bits/forward_list.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
-
-/usr/include/c++/11/bits/algorithmfwd.h:
-
-/usr/include/c++/11/pstl/execution_defs.h:
 
 /usr/include/c++/11/bits/ranges_cmp.h:
 
@@ -2225,13 +2256,7 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/bits/iterator_concepts.h:
 
-/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/c++/11/bits/ranges_algobase.h:
-
 /usr/include/c++/11/bits/stl_uninitialized.h:
-
-/usr/include/c++/11/bits/stl_numeric.h:
 
 /usr/include/c++/11/bits/exception_ptr.h:
 
@@ -2271,6 +2296,8 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/bits/localefwd.h:
 
+/usr/include/c++/11/tr1/hypergeometric.tcc:
+
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 
 /usr/include/c++/11/vector:
@@ -2289,12 +2316,6 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
-/usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
-
-/usr/include/c++/11/bits/stl_iterator.h:
-
-/usr/include/c++/11/bits/ranges_algo.h:
-
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
 
 /usr/include/c++/11/clocale:
@@ -2311,13 +2332,9 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/cctype:
 
-/usr/include/c++/11/unordered_map:
-
 /usr/include/c++/11/locale:
 
 /usr/include/ctype.h:
-
-/usr/include/c++/11/bits/stream_iterator.h:
 
 /usr/include/c++/11/bits/ios_base.h:
 
@@ -2330,8 +2347,6 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/c++/11/ext/alloc_traits.h:
 
 /usr/include/x86_64-linux-gnu/bits/sched.h:
-
-/usr/include/c++/11/bits/unordered_map.h:
 
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 
@@ -2357,12 +2372,6 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
 
-/usr/include/c++/11/tr1/legendre_function.tcc:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
-
-/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
-
 /usr/include/c++/11/functional:
 
 /usr/include/linux/errno.h:
@@ -2370,6 +2379,10 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
 /usr/include/c++/11/bits/locale_classes.h:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/c++/11/tr1/gamma.tcc:
 
 /usr/include/x86_64-linux-gnu/bits/uio_lim.h:
 
@@ -2405,6 +2418,8 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/asm-generic/errno.h:
 
+/usr/include/c++/11/tr1/ell_integral.tcc:
+
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
@@ -2431,11 +2446,7 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/stdexcept:
 
-/usr/include/c++/11/codecvt:
-
-/usr/include/string.h:
-
-/usr/include/c++/11/bits/streambuf.tcc:
+/usr/include/c++/11/tr1/bessel_function.tcc:
 
 /usr/include/c++/11/bits/uniform_int_dist.h:
 
@@ -2444,6 +2455,8 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/c++/11/bits/exception.h:
 
 /usr/include/c++/11/bits/locale_facets.h:
+
+/usr/include/c++/11/tr1/poly_hermite.tcc:
 
 /usr/include/c++/11/cwctype:
 
@@ -2473,13 +2486,11 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/bits/stl_map.h:
 
+/usr/include/x86_64-linux-gnu/bits/iscanonical.h:
+
 /usr/include/limits.h:
 
 /usr/include/c++/11/bits/stl_relops.h:
-
-/usr/include/c++/11/tr1/beta_function.tcc:
-
-/usr/include/c++/11/array:
 
 /usr/include/c++/11/bits/uses_allocator.h:
 
@@ -2497,22 +2508,6 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 
 /usr/include/c++/11/bits/enable_special_members.h:
 
-/usr/include/c++/11/bits/ranges_util.h:
-
-/usr/include/c++/11/limits:
-
-/usr/include/c++/11/bits/refwrap.h:
-
-/usr/include/c++/11/bits/hashtable.h:
-
-/usr/include/c++/11/bits/hashtable_policy.h:
-
-/usr/include/c++/11/cstring:
-
-/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
-
-/usr/include/math.h:
-
 /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
@@ -2524,3 +2519,35 @@ CMakeFiles/nano_engine.dir/src/tokenizer.cpp.o: ../src/tokenizer.cpp \
 /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
 
 /usr/include/x86_64-linux-gnu/bits/mathcalls.h:
+
+/usr/include/c++/11/bits/postypes.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
+
+/usr/include/c++/11/bits/specfun.h:
+
+/usr/include/c++/11/limits:
+
+/usr/include/c++/11/array:
+
+/usr/include/c++/11/tr1/beta_function.tcc:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
+
+/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
+
+/usr/include/c++/11/tr1/legendre_function.tcc:
+
+/usr/include/c++/11/tr1/riemann_zeta.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+
+/usr/include/math.h:
+
+/usr/include/c++/11/cstring:
+
+/usr/include/c++/11/codecvt:
+
+/usr/include/c++/11/bits/streambuf.tcc:
+
+/usr/include/string.h:

@@ -19,6 +19,14 @@ namespace ops {
     void layernorm(const Tensor& in, Tensor& out, float eps = 1e-5f);
 
     void get_embedding(const Tensor& embedding_table, int token_id, Tensor& out);
+
+    void matvec(const Tensor& m, const Tensor& v, Tensor& out);
+
+    void apply_rope(Tensor& t, int pos, int head_dim, float rope_theta = 1000000.0f);
+
+    void silu(Tensor& t);
+
+    int argmax(const Tensor& logits);
 }
 
 #endif
