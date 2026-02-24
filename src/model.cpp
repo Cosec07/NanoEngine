@@ -52,11 +52,8 @@ Transformer::Transformer(Config cfg) : config(cfg) {
 
     rms_final_weight = Tensor({(size_t)cfg.dim});
 
-    if(cfg.tie_embeddings) {
-        std::cout <<"Weight Tying Enabled: Output head shares memory with embeddings layer" << std::endl;
-    }else {
-        w_cls = Tensor({(size_t)cfg.vocab_size, (size_t)cfg.dim});
-    }
+    // Always allocate w_cls to support loading it if present
+    w_cls = Tensor({(size_t)cfg.vocab_size, (size_t)cfg.dim});
 }
 
 void Transformer::load_weights(const SafeTensorsLoader& loader) {
@@ -72,6 +69,7 @@ void Transformer::load_weights(const SafeTensorsLoader& loader) {
 
         //Attention Projections
         loader.load_tensor(prefix + "self_attn.q_proj.weight", layers[i].wq);
+
         loader.load_tensor(prefix + "self_attn.k_proj.weight", layers[i].wk);
         loader.load_tensor(prefix + "self_attn.v_proj.weight", layers[i].wv);
         loader.load_tensor(prefix + "self_attn.o_proj.weight", layers[i].wo);
@@ -92,10 +90,22 @@ void Transformer::load_weights(const SafeTensorsLoader& loader) {
     //Final Norm
     loader.load_tensor("model.norm.weight", rms_final_weight);
 
-    if(config.tie_embeddings) {
-        std::cout << "Skipping lm_head.weight (Weights are tied to embeddings)."<<std::endl;
-    }else {
+    // Load lm_head if present
+    if (loader.contains("model.lm_head.weight")) {
+        std::cout << "Found model.lm_head.weight, loading..." << std::endl;
         loader.load_tensor("model.lm_head.weight", w_cls);
+    } else if(config.tie_embeddings) {
+        std::cout << "model.lm_head.weight not found. Using tied embeddings."<<std::endl;
+        // Point w_cls data to embeddings (copy for simplicity, or just use flag in forward)
+        // Since we have logic in forward, we don't need to copy if we rely on flag. 
+        // BUT if we want to be safe, let's just copy.
+        // Actually, let's rely on forward logic but we need to know if we loaded it.
+        // We can check if w_cls was touched? 
+        // Or better: update forward logic to check if loaded?
+        // Simpler: Just copy data if tied and not found.
+        std::memcpy(w_cls.data.data(), token_embedding_table.data.data(), token_embedding_table.size() * sizeof(float));
+    } else {
+        std::cerr << "Warning: lm_head not found and embeddings not tied!" << std::endl;
     }
     std::cout<<"All weights loaded successfully!"<< std::endl;
 }
@@ -109,7 +119,8 @@ void TransformerLayer::forward(Tensor& hidden_state, int pos,const Config& confi
     Tensor v({kv_dim});
     Tensor normalized_hidden({(size_t)config.dim});
 
-    ops::layernorm(hidden_state, normalized_hidden, config.rms_norm_eps);
+    // Input RMSNorm
+    ops::rmsnorm(hidden_state, normalized_hidden, config.rms_norm_eps);
     ops::mul(normalized_hidden, rms_att_weight, normalized_hidden);
 
     ops::matvec(wq, normalized_hidden, q);
@@ -165,17 +176,15 @@ void TransformerLayer::forward(Tensor& hidden_state, int pos,const Config& confi
             }
         }
     }
-    //std::cout<<" -> Attention Heads Processed."<<std::endl;
 
     Tensor projected_out({(size_t)config.dim});
     ops::matvec(wo, att_out, projected_out);
 
     ops::add(hidden_state, projected_out, hidden_state);
 
-    //std::cout<<" -> Layer Attention Forward Pass Complete!"<<std::endl;
-
     Tensor ffn_norm({(size_t)config.dim});
-    ops::layernorm(hidden_state, ffn_norm, config.rms_norm_eps);
+    // Post-Attention RMSNorm
+    ops::rmsnorm(hidden_state, ffn_norm, config.rms_norm_eps);
     ops::mul(ffn_norm, rms_ffn_weight, ffn_norm);
 
     Tensor gate_out({(size_t)config.hidden_dim});
@@ -192,9 +201,6 @@ void TransformerLayer::forward(Tensor& hidden_state, int pos,const Config& confi
     ops::matvec(w_down, gate_out, down_out);
 
     ops::add(hidden_state, down_out, hidden_state);
-
-    //std::cout<<" -> SwiGLU FFN Complete!"<<std::endl;
-    
 }
 
 Tensor Transformer::forward(int token_id, int pos, Config& config) {
@@ -202,23 +208,18 @@ Tensor Transformer::forward(int token_id, int pos, Config& config) {
     ops::get_embedding(token_embedding_table, token_id, hidden_state);
 
     for(int i=0; i<config.n_layers; ++i){
-        //std::cout<<" [Processing Layer " <<i << "]"<< "\r" << std::flush;
         layers[i].forward(hidden_state, pos, config);
-
     }
-    std::cout<< std::endl;
 
     Tensor final_norm({(size_t)config.dim});
-    ops::layernorm(hidden_state, final_norm, config.rms_norm_eps);
+    // Final RMSNorm
+    ops::rmsnorm(hidden_state, final_norm, config.rms_norm_eps);
     ops::mul(final_norm, rms_final_weight, final_norm);
 
     Tensor logits({(size_t)config.vocab_size});
 
-    if(config.tie_embeddings) {
-        ops::matvec(token_embedding_table, final_norm, logits);
-    } else {
-        ops::matvec(w_cls, final_norm, logits);
-    }
+    // Always use w_cls (which is either loaded or copied from embeddings)
+    ops::matvec(w_cls, final_norm, logits);
 
     return logits;
 }

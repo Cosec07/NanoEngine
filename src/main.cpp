@@ -4,54 +4,113 @@
 #include "ops.hpp"
 #include <iostream>
 #include <vector>
+#include <random>
+#include <string>
+
+struct ChatMessage {
+    std::string role;
+    std::string content;
+};
+
+class ChatML {
+public:
+    static std::vector<int> format(const Tokenizer& tokenizer, const std::vector<ChatMessage>& messages) {
+        std::vector<int> tokens;
+        for (const auto& msg : messages) {
+            tokens.push_back(151644); // <|im_start|>
+            std::vector<int> body = tokenizer.encode(msg.role + "\n" + msg.content);
+            tokens.insert(tokens.end(), body.begin(), body.end());
+            tokens.push_back(151645); // <|im_end|>
+            tokens.push_back(198);    // \n
+        }
+        // Append Assistant trigger for the model to start generating
+        tokens.push_back(151644); // <|im_start|>
+        std::vector<int> header = tokenizer.encode("assistant\n");
+        tokens.insert(tokens.end(), header.begin(), header.end());
+        
+        return tokens;
+    }
+};
 
 int main() {
     try {
-        std::cout << "=== Nano-Engine Live ===" << std::endl;
+        std::cout << "=== Nano-Engine: Qwen 3 0.6B ===\n" << std::endl;
 
-        // 1. Setup
+        // 1. Setup Tokenizer and Model
         Tokenizer tokenizer;
         tokenizer.load_json("vocab.json");
 
         Config config; 
-        config.max_seq_len = 1024; // Context window size
+        config.max_seq_len = 2048; // Standard testing context length
         Transformer model(config);
 
         SafeTensorsLoader loader("model.safetensors");
         model.load_weights(loader);
 
-        std::cout << "\n----------------------------------------\n";
+        // Initialize Random Number Generator for sampling
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        float temperature = 0.7f; // Recommended for general chat
+        float top_p = 0.8f;       // Standard Top-P value
 
-        int next_token = 400; 
+        int pos = 0;
+
+        std::cout << "User: ";
+        std::string user_input;
+        std::getline(std::cin, user_input);
+
+        // 2. Build ChatML Prompt
+        std::vector<ChatMessage> history = {
+            {"system", "You are a helpful AI assistant."},
+            {"user", user_input}
+        };
         
-        std::cout << tokenizer.decode(next_token) << std::flush;
+        std::vector<int> prompt_tokens = ChatML::format(tokenizer, history);
 
-        int max_tokens_to_generate = 10; 
-        
-        for (int pos = 0; pos < max_tokens_to_generate; ++pos) {
-            
+        std::cout << "DEBUG: Prompt Tokens: ";
+        for(auto t : prompt_tokens) std::cout << t << " ";
+        std::cout << std::endl;
 
-            Tensor logits = model.forward(next_token, pos, config);
+        std::cout << "Nano: " << std::flush;
 
- 
-            next_token = ops::argmax(logits);
-
-
-            std::string word = tokenizer.decode(next_token);
-
-            std::cout << word << std::flush;
-
-            if (next_token == 151645 || next_token == 151643) {
-                break;
-            }
+        // 3. Prefill Phase
+        Tensor logits({(size_t)config.vocab_size});
+        for (int token : prompt_tokens) {
+            logits = model.forward(token, pos, config);
+            pos++;
         }
-        
-        std::cout << "\n\n[Generation Complete]" << std::endl;
+
+        // 4. Generation Phase
+        int max_tokens = 30;
+        for (int i = 0; i < max_tokens; ++i) {
+            // Apply Temperature and Sample
+            for (size_t j = 0; j < logits.size(); ++j) logits[j] /= temperature;
+            ops::softmax(logits);
+            int next_token = ops::sample_topp(logits, top_p, rng);
+
+            // Stop if EOS or ChatML end token is reached
+            if (next_token == 151645 || next_token == 151643) break;
+
+            // Decode and print if not filler
+            if (next_token != 151644) {
+                std::string piece = tokenizer.decode(next_token);
+                // Further filter blank lines if the piece is just a newline and it's the very start
+                if (!(i == 0 && (piece == "\n" || piece == "\r\n"))) {
+                    std::cout << piece << std::flush;
+                }
+            }
+
+            // ALWAYS forward pass for next token
+            logits = model.forward(next_token, pos, config);
+            pos++;
+
+            if (pos >= config.max_seq_len) break;
+        }
+        std::cout << std::endl;
 
     } catch (const std::exception& e) {
-        std::cerr << "\nFatal Error: " << e.what() << std::endl;
+        std::cerr << "Fatal: " << e.what() << std::endl;
         return 1;
     }
-
     return 0;
 }

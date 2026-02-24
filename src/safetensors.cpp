@@ -41,6 +41,10 @@ SafeTensorsLoader::SafeTensorsLoader(const std::string& path) : file_path(path) 
     std::cout<<"SafeTensors parsed: Found"<< tensor_map.size()<<"tensors." <<std::endl;
 }
 
+bool SafeTensorsLoader::contains(const std::string& tensor_name) const {
+    return tensor_map.find(tensor_name) != tensor_map.end();
+}
+
 void SafeTensorsLoader::load_tensor(const std::string& tensor_name, Tensor& out_tensor) const {
     if (tensor_map.find(tensor_name) == tensor_map.end()) {
         throw std::runtime_error("Tensor not found in safetensors file: " + tensor_name);

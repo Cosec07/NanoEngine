@@ -6,6 +6,7 @@
 
 namespace ops {
 
+
     void add(const Tensor& a, const Tensor& b, Tensor& out) {
         assert(a.size() == b.size() && a.size() == out.size());
         for(size_t i=0; i< a.size(); ++i) {
@@ -70,20 +71,16 @@ namespace ops {
         }
     }
 
-    void layernorm(const Tensor& in, Tensor& out, float eps) {
-        float mean=0.0f;
-        for(size_t i=0; i<in.size(); ++i) mean += in[i];
-        mean /= in.size();
-
-        float var=0.0f;
-        for(size_t i=0; i<in.size(); ++i) {
-            float diff = in[i] - mean;
-            var += diff * diff;
+    void rmsnorm(const Tensor& in, Tensor& out, float eps) {
+        float ss = 0.0f;
+        for (size_t i = 0; i < in.size(); ++i) {
+            ss += in[i] * in[i];
         }
-        var /= in.size();
-
-        for(size_t i=0; i<in.size(); ++i) {
-            out[i] = (in[i] - mean) / std::sqrt(var + eps);
+        ss /= in.size();
+        ss += eps;
+        ss = 1.0f / std::sqrt(ss);
+        for (size_t i = 0; i < in.size(); ++i) {
+            out[i] = in[i] * ss;
         }
     }
 
@@ -112,23 +109,23 @@ namespace ops {
 
     void apply_rope(Tensor& t, int pos, int head_dim, float rope_theta) {
         size_t n_heads = t.size() / head_dim;
+        int half_dim = head_dim / 2;
 
         for(size_t h=0; h<n_heads; ++h) {
-            for (size_t i=0; i<head_dim; i+=2) {
-                float freq = 1.0f / std::pow(rope_theta, static_cast<float>(i) / head_dim);
+            float* head_base = t.data.data() + (h * head_dim);
 
+            for (size_t i=0; i<half_dim; ++i) {
+                float freq = 1.0f / std::pow(rope_theta, 2.0f * i / head_dim);
+                
                 float val = static_cast<float>(pos) * freq;
                 float fcr = std::cos(val);
                 float fci = std::sin(val);
 
-                size_t idx0 = h * head_dim + i;
-                size_t idx1 = h * head_dim + i + 1;
+                float v0 = head_base[i];
+                float v1 = head_base[i + half_dim];
 
-                float v0 = t[idx0];
-                float v1 = t[idx1];
-
-                t[idx0] = v0 * fcr - v1 * fci;
-                t[idx1] = v0 * fci - v1 * fcr;
+                head_base[i] = v0 * fcr - v1 * fci;
+                head_base[i + half_dim] = v0 * fci + v1 * fcr;
             }
         }
 
@@ -152,4 +149,60 @@ namespace ops {
         }
         return max_index;
     }
+
+    struct ProbIndex {
+        float prob;
+        int index;
+    };
+
+    int sample(Tensor& probs, float top_p, int top_k, std::mt19937& rng) {
+    size_t n = probs.size();
+    std::vector<ProbIndex> sorted_probs(n);
+    for (size_t i = 0; i < n; ++i) {
+        sorted_probs[i] = {probs[i], static_cast<int>(i)};
+    }
+
+    // 1. Sort in descending order based on probability
+    std::sort(sorted_probs.begin(), sorted_probs.end(), 
+        [](const ProbIndex& a, const ProbIndex& b) {
+            return a.prob > b.prob;
+        });
+
+    // 2. Apply Top-K cutoff
+    // If top_k is 20, we only look at the first 20 elements.
+    size_t limit = n;
+    if (top_k > 0 && top_k < n) {
+        limit = top_k;
+    }
+
+    // 3. Apply Top-P cutoff on the remaining items
+    float cumulative_prob = 0.0f;
+    size_t cutoff_index = 0;
+    for (size_t i = 0; i < limit; ++i) {
+        cumulative_prob += sorted_probs[i].prob;
+        cutoff_index = i;
+        if (cumulative_prob >= top_p) {
+            break;
+        }
+    }
+
+    // 4. Sample randomly from the final restricted pool
+    std::uniform_real_distribution<float> dist(0.0f, cumulative_prob);
+    float r = dist(rng);
+    
+    float current_sum = 0.0f;
+    for (size_t i = 0; i <= cutoff_index; ++i) {
+        current_sum += sorted_probs[i].prob;
+        if (r <= current_sum) {
+            return sorted_probs[i].index;
+        }
+    }
+    
+    return sorted_probs[cutoff_index].index; 
+}
+
+    int sample_topp(Tensor& probs, float top_p, std::mt19937& rng) {
+        return sample(probs, top_p, 0, rng);
+    }
+
 }

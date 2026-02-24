@@ -23,6 +23,7 @@ public:
     SafeTensorsLoader(const std::string& path);
 
     void load_tensor(const std::string& tensor_name, Tensor& out_tensor) const;
+    bool contains(const std::string& tensor_name) const;
 };
 
 #endif

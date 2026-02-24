@@ -2,6 +2,7 @@
 #define OPS_HPP
 
 #include "tensor.hpp"
+#include <random>
 
 namespace ops {
     void add(const Tensor& a, const Tensor& b, Tensor& out);
@@ -16,7 +17,7 @@ namespace ops {
 
     void softmax(Tensor& t);
 
-    void layernorm(const Tensor& in, Tensor& out, float eps = 1e-5f);
+    void rmsnorm(const Tensor& in, Tensor& out, float eps = 1e-6f);
 
     void get_embedding(const Tensor& embedding_table, int token_id, Tensor& out);
 
@@ -27,6 +28,10 @@ namespace ops {
     void silu(Tensor& t);
 
     int argmax(const Tensor& logits);
+
+    int sample(Tensor& probs, float top_p, int top_k, std::mt19937& rng);
+
+    int sample_topp(Tensor& probs, float top_p, std::mt19937& rng);
 }
 
 #endif
