@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/data/kaushik/NanoEngine/include -I/data/kaushik/NanoEngine/third_party
 
-CXX_FLAGS = -std=gnu++20
+CXX_FLAGS = -O3 -DNDEBUG -O3 -march=native -std=gnu++20
 

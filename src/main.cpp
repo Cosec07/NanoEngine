@@ -81,7 +81,7 @@ int main() {
         }
 
         // 4. Generation Phase
-        int max_tokens = 30;
+        int max_tokens = 512;
         for (int i = 0; i < max_tokens; ++i) {
             // Apply Temperature and Sample
             for (size_t j = 0; j < logits.size(); ++j) logits[j] /= temperature;

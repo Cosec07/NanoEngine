@@ -27,11 +27,13 @@ Transformer::Transformer(Config cfg) : config(cfg) {
 
         layer.rms_att_weight = Tensor({(size_t)cfg.dim});
 
-        //WQ: (1204, 1024)
+        //WQ: (2048, 1024)
         layer.wq = Tensor({q_dim, (size_t)cfg.dim});
+        layer.q_norm = Tensor({(size_t)cfg.head_dim});
 
-        //WK/WV: (512, 1024)
+        //WK/WV: (1024, 1024)
         layer.wk = Tensor({kv_dim, (size_t)cfg.dim});
+        layer.k_norm = Tensor({(size_t)cfg.head_dim});
         layer.wv = Tensor({kv_dim, (size_t)cfg.dim});
 
         // WO: (1024, 1024)
@@ -69,8 +71,10 @@ void Transformer::load_weights(const SafeTensorsLoader& loader) {
 
         //Attention Projections
         loader.load_tensor(prefix + "self_attn.q_proj.weight", layers[i].wq);
+        loader.load_tensor(prefix + "self_attn.q_norm.weight", layers[i].q_norm);
 
         loader.load_tensor(prefix + "self_attn.k_proj.weight", layers[i].wk);
+        loader.load_tensor(prefix + "self_attn.k_norm.weight", layers[i].k_norm);
         loader.load_tensor(prefix + "self_attn.v_proj.weight", layers[i].wv);
         loader.load_tensor(prefix + "self_attn.o_proj.weight", layers[i].wo);
 
@@ -126,6 +130,10 @@ void TransformerLayer::forward(Tensor& hidden_state, int pos,const Config& confi
     ops::matvec(wq, normalized_hidden, q);
     ops::matvec(wk, normalized_hidden, k);
     ops::matvec(wv, normalized_hidden, v);
+
+    // Qwen3 QK-norm: per-head RMSNorm on Q and K before RoPE
+    ops::apply_head_rmsnorm(q, q_norm, config.head_dim, config.rms_norm_eps);
+    ops::apply_head_rmsnorm(k, k_norm, config.head_dim, config.rms_norm_eps);
 
     ops::apply_rope(q, pos, config.head_dim, 1000000.0f);
     ops::apply_rope(k, pos, config.head_dim, 1000000.0f);

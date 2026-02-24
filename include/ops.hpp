@@ -25,6 +25,9 @@ namespace ops {
 
     void apply_rope(Tensor& t, int pos, int head_dim, float rope_theta = 1000000.0f);
 
+    // Apply per-head RMSNorm with learnable scale weights (Qwen3 QK-norm)
+    void apply_head_rmsnorm(Tensor& t, const Tensor& weight, int head_dim, float eps = 1e-6f);
+
     void silu(Tensor& t);
 
     int argmax(const Tensor& logits);

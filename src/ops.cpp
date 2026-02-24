@@ -131,6 +131,27 @@ namespace ops {
 
     }
 
+    // Apply per-head RMSNorm with learnable scale (Qwen3 QK-norm)
+    // weight has shape [head_dim], applied identically to each head
+    void apply_head_rmsnorm(Tensor& t, const Tensor& weight, int head_dim, float eps) {
+        size_t n_heads = t.size() / head_dim;
+        for (size_t h = 0; h < n_heads; ++h) {
+            float* head_base = t.data.data() + (h * head_dim);
+            // Compute RMS of this head
+            float ss = 0.0f;
+            for (int i = 0; i < head_dim; ++i) ss += head_base[i] * head_base[i];
+            ss /= head_dim;
+            ss += eps;
+            ss = 1.0f / std::sqrt(ss);
+            // Scale by learnable weight
+            for (int i = 0; i < head_dim; ++i) {
+                head_base[i] = head_base[i] * ss * weight[i];
+            }
+        }
+    }
+
+
+
     void silu(Tensor& t) {
         for(size_t i=0; i< t.size(); ++i) {
             float x = t[i];

@@ -22,8 +22,10 @@ struct Config{
 struct TransformerLayer {
     Tensor rms_att_weight;
 
-    Tensor wq; 
-    Tensor wk; 
+    Tensor wq;
+    Tensor q_norm;
+    Tensor wk;
+    Tensor k_norm;
     Tensor wv;
     Tensor wo;
 
