@@ -3,6 +3,7 @@
 #include "ops.hpp"
 #include <cmath>
 #include <cstring>
+#include <omp.h>
 
 Transformer::Transformer(Config cfg) : config(cfg) {
     size_t q_dim = cfg.n_heads * cfg.head_dim; // 16(heads) * 128 = 2048
@@ -148,6 +149,7 @@ void TransformerLayer::forward(Tensor& hidden_state, int pos,const Config& confi
 
     int kv_mul = config.n_heads / config.n_kv_heads;
 
+    #pragma amp parallel for
     for (int h=0; h< config.n_heads; ++h) {
         int kv_h = h / kv_mul;
 

@@ -6,6 +6,8 @@
 #include <vector>
 #include <random>
 #include <string>
+#include <chrono>
+#include <iomanip>
 
 struct ChatMessage {
     std::string role;
@@ -36,6 +38,7 @@ int main() {
     try {
         std::cout << "=== Nano-Engine: Qwen 3 0.6B ===\n" << std::endl;
 
+        
         // 1. Setup Tokenizer and Model
         Tokenizer tokenizer;
         tokenizer.load_json("vocab.json");
@@ -72,7 +75,8 @@ int main() {
         std::cout << std::endl;
 
         std::cout << "Nano: " << std::flush;
-
+        auto start_time = std::chrono::high_resolution_clock::now();
+        int generated_tokens = 0;
         // 3. Prefill Phase
         Tensor logits({(size_t)config.vocab_size});
         for (int token : prompt_tokens) {
@@ -83,6 +87,7 @@ int main() {
         // 4. Generation Phase
         int max_tokens = 512;
         for (int i = 0; i < max_tokens; ++i) {
+            generated_tokens++;
             // Apply Temperature and Sample
             for (size_t j = 0; j < logits.size(); ++j) logits[j] /= temperature;
             ops::softmax(logits);
@@ -106,7 +111,16 @@ int main() {
 
             if (pos >= config.max_seq_len) break;
         }
-        std::cout << std::endl;
+        auto end_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = end_time - start_time;
+        double seconds = duration.count();
+        double tps = generated_tokens / seconds;
+        std::cout << "\n\n========================================" << std::endl;
+        std::cout << "[Generation Complete]" << std::endl;
+        std::cout << "Tokens Generated: " << generated_tokens << std::endl;
+        std::cout << "Time Elapsed:     " << seconds << " seconds" << std::endl;
+        std::cout << "Speed:            " << std::fixed << std::setprecision(2) << tps << " tokens/sec" << std::endl;
+        std::cout << "========================================" << std::endl;
 
     } catch (const std::exception& e) {
         std::cerr << "Fatal: " << e.what() << std::endl;

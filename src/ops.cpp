@@ -3,6 +3,8 @@
 #include <numeric>
 #include <cmath>
 #include <cstring>
+#include <immintrin.h>
+#include <omp.h>
 
 namespace ops {
 
@@ -30,8 +32,22 @@ namespace ops {
 
     float dot(const float* a, const float*  b, size_t n) {
         float sum=0.0f;
-        for(size_t i=0; i < n; ++i) {
-            sum += a[i] * b[i];
+        size_t i = 0;
+
+        __m256 acc = _mm256_setzero_ps();
+        for(; i + 7 < n; i+=8) {
+            __m256 va = _mm256_loadu_ps(a+i);
+            __m256 vb = _mm256_loadu_ps(b+i);
+
+            __m256 prod = _mm256_mul_ps(va, vb);
+
+            acc = _mm256_add_ps(acc,prod);
+        }
+        float temp[8];
+        _mm256_storeu_ps(temp,acc);
+
+        for(int i=0; i<8; ++i){
+            sum += temp[i];
         }
         return sum;
     }
@@ -102,6 +118,7 @@ namespace ops {
         assert(v.size() == cols);
         assert(out.size() == rows);
 
+        #pragma omp parallel for
         for (size_t i=0; i<rows; ++i) {
             out[i] = dot(m.data.data() + (i * cols), v.data.data(), cols);
         }
